@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <title>JP & KO Postal Code Demo</title>
+    <style>
+      header,
+      .header {
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        left: 0;
+        right: 0;
+        margin-bottom: 40px;
+        background-color: #0f948d;
+        color: #fff;
+        font-size: 1.3em;
+        padding: 0.8rem;
+        line-height: 20px;
+        min-height: 50px;
+        overflow: hidden;
+        text-align: center;
+      }
+      .home-link {
+        color: white;
+        text-decoration: none;
+        position: absolute;
+        left: 6%;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 2em;
+        transition: left 0.3s ease;
+      }
+      .home-link:hover {
+        left: 5%;
+      }
+      .logo {
+        position: absolute;
+        left: 50%;
+        top: 53%;
+        transform: translate(-50%, -50%);
+        height: 50px;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      form {
+        margin: 0 auto;
+        max-width: 55%;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      .form-field {
+        margin-bottom: 20px;
+      }
+      .form-row .form-field {
+        margin-bottom: 0;
+      }
+      .form-row + .form-row {
+        margin-top: 20px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      .autocomplete-list {
+        list-style: none;
+        padding: 0;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        max-height: 200px;
+        overflow-y: auto;
+        background-color: white;
+      }
+      .autocomplete-list li {
+        padding: 8px;
+        cursor: pointer;
+      }
+      .autocomplete-list li:hover {
+        background-color: #bff3f0;
+      }
+      div#Label {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 8px;
+        white-space: pre-line;
+        overflow: hidden;
+        word-wrap: break-word;
+        background-color: #f9f9f9;
+        color: #333;
+        flex-grow: 2;
+      }
+      button#toggleDetails {
+        border: none;
+        border-radius: 20px;
+        padding: 10px 20px;
+        cursor: pointer;
+        background-color: #0f948d;
+        color: white;
+        font-size: 16px;
+        margin-left: 10px;
+        transition: background-color 0.3s;
+        transition: all 0.2s ease-in-out;
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+      button#toggleDetails:hover {
+        background-color: #0d7b6f;
+        transform: scale(1.15);
+      }
+      button#nextAddress {
+        border: none;
+        border-radius: 20px;
+        padding: 10px 20px;
+        cursor: pointer;
+        background-color: #0f948d;
+        color: white;
+        font-size: 16px;
+        margin-left: 10px;
+        transition: background-color 0.3s;
+        transition: all 0.2s ease-in-out;
+        white-space: nowrap;
+        display: block;
+      }
+      button#nextAddress:hover {
+        background-color: #0d7b6f;
+        transform: scale(1.15);
+      }
+
+      .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 3%;
+      }
+      .form-field {
+        display: flex;
+        flex-direction: column;
+      }
+      .half-width {
+        flex-basis: 48.5%;
+      }
+      .form-field:not(.half-width) {
+        flex-basis: 70%;
+      }
+      .form-field.quarter-width {
+        flex-basis: 27%;
+      }
+      @media (max-width: 840px) {
+        .half-width,
+        .form-field:not(.half-width),
+        .form-field.quarter-width {
+          flex-basis: 100%;
+        }
+      }
+      .autocomplete-list {
+        position: absolute;
+        z-index: 1000;
+        width: calc(100% - 16px);
+        top: 100%;
+        left: 1px;
+        box-sizing: border-box;
+      }
+      .form-field {
+        position: relative;
+      }
+      .label-and-button {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+      .label-and-button > label {
+        margin-right: 10px;
+      }
+      #Label {
+        flex-grow: 1;
+        margin-right: 10px;
+      }
+      .half-width:last-child,
+      .quarter-width:last-child {
+        margin-right: 0;
+      }
+
+      /* Table Design */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+
+      th,
+      td {
+        padding: 4px; /* Padding for cells */
+        text-align: left; /* Left-align text */
+      }
+
+      th {
+        background-color: #0f948d;
+        color: white;
+      }
+
+      tr:nth-child(odd) {
+        background-color: #f9f9f9; /* Zebra stripes for rows */
+      }
+
+      tr:hover {
+        background-color: #e8e8e8; /* Hover effect for rows */
+      }
+      th,
+      td {
+        height: auto;
+        white-space: nowrap;
+      }
+      th:first-child,
+      td:first-child {
+        border-left: none;
+      }
+      th:last-child,
+      td:last-child {
+        border-right: none;
+      }
+      th:first-child,
+      td:first-child {
+        border-top: none;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      div.form span {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: #0f948d;
+        border-radius: 5px;
+      }
+
+      .autocomplete-list {
+        width: 100%;
+      }
+      .form-field.full-width {
+        flex-basis: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="startDemo.html" class="home-link">◄🌍</a>
+      <img src="img/FullLogo-Light-Loqate.svg" alt="logo" class="logo" />
+    </header>
+
+    <div style="height: 80px; width: 100%; background-color: transparent"></div>
+
+    <form>
+      <div class="form-row">
+        <label for="CountryName">Country</label>
+        <select id="CountryName">
+          <option value="JPN">Japan</option>
+          <option value="KOR">Korea</option>
+        </select>
+      </div>
+      <!-- Row for Postal Code and City -->
+      <div class="form-row">
+        <div class="form-field half-width">
+          <label for="PostalCode">Postal Code</label>
+          <input
+            id="PostalCode"
+            type="text"
+            placeholder="Zip/Postal Code"
+            autocomplete="off"
+          />
+          <ul
+            id="PostalCodeSuggestions"
+            class="autocomplete-list"
+            style="display: none"
+          ></ul>
+        </div>
+        <div class="form-field half-width">
+          <label for="City">City</label>
+          <input id="City" type="text" placeholder="City" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field full-width">
+          <label for="Line1">Line1</label>
+          <input
+            id="Line1"
+            type="text"
+            placeholder="Street and House number"
+            autocomplete="off"
+          />
+          <ul
+            id="Line1Suggestions"
+            class="autocomplete-list"
+            style="display: none"
+          ></ul>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="Province">Province</label>
+        <input
+          id="Province"
+          type="text"
+          placeholder="State/Province"
+          autocomplete="off"
+        />
+      </div>
+      <div class="form">
+        <span style="margin-bottom: 5px">Shipping Label</span>
+      </div>
+      <div class="label-and-button">
+        <div id="Label">Address details</div>
+        <button type="button" id="toggleDetails">▼ Details</button>
+        <button type="button" id="nextAddress">Next Address</button>
+      </div>
+
+      <table id="detailsTable" style="display: none; width: 100%" border="1">
+        <thead>
+          <tr>
+            <th>Address detail</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody id="detailsTableBody"></tbody>
+      </table>
+    </form>
+
+    <script>
+      // Globale Variable zum Speichern der Sprache
+      let savedLanguage = "";
+
+      // Function to determine language code and filter parameters based on language
+      function getLanguageParams(language) {
+        let languageCode = "";
+        let filterParam = "";
+
+        switch (language) {
+          case "EN":
+            languageCode = "ENG";
+            filterParam = "Language:ENG";
+            break;
+          case "JA":
+            languageCode = "JPN";
+            filterParam = "Language:JPN";
+            break;
+          case "KO":
+            languageCode = "KOR";
+            filterParam = "Language:KOR";
+            break;
+          default:
+            // Fallback: Nutze die vorher gespeicherte Sprache, falls vorhanden
+            languageCode = savedLanguage ? savedLanguage : "ENG";
+            filterParam = savedLanguage
+              ? `Language:${savedLanguage}`
+              : "Language:ENG";
+        }
+
+        // Speichere die Sprache
+        savedLanguage = languageCode;
+
+        return { languageCode, filterParam };
+      }
+
+      // Fetch postal code suggestions based on input
+      function fetchPostalCodeSuggestions(input) {
+        const countryCode = document.getElementById("CountryName").value;
+        const url = `https://api.addressy.com/LocationServices/Geocoding/GlobalTypeAhead/v1.00/json4.ws?Key=DM83-XX93-WG87-YY43&Input=${input}&Countries=${countryCode}`;
+
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => updatePostalCodeSuggestions(data.Items))
+          .catch((error) =>
+            console.error("Error fetching postal code suggestions:", error)
+          );
+      }
+
+      // Update the postal code suggestions list
+      function updatePostalCodeSuggestions(items) {
+        const list = document.getElementById("PostalCodeSuggestions");
+        list.innerHTML = "";
+
+        const searchText = document.getElementById("PostalCode").value;
+
+        // Filter items to include only those with Type = 'PostalCode'
+        const filteredItems = items.filter(
+          (item) => item.Type === "PostalCode"
+        );
+
+        filteredItems.forEach((item) => {
+          const listItem = document.createElement("li");
+          listItem.innerHTML =
+            highlightText(item.Text, searchText) +
+            " " +
+            highlightText(item.Description, searchText);
+
+          listItem.addEventListener("click", function () {
+            document.getElementById("PostalCode").value = item.Postcode;
+
+            // Überprüfe, ob item.Locality existiert und nicht undefined ist
+            if (item.Locality && item.Locality !== "undefined") {
+              document.getElementById("City").value = item.Locality;
+            } else {
+              document.getElementById("City").value = ""; // Leeres Feld, falls ungültig
+            }
+            // Speichere die erkannte Sprache
+            savedLanguage = item.Language;
+            // Abrufen von Details anhand der ID
+            fetchAddressDetails(item.Id, item.Language);
+
+            list.style.display = "none";
+
+            // Fetch Line1 suggestions immediately after postal code selection
+            fetchAddressesForLine1(
+              "",
+              item.Postcode,
+              item.Locality || "",
+              true
+            );
+          });
+
+          list.appendChild(listItem);
+        });
+
+        list.style.display = filteredItems.length ? "block" : "none";
+      }
+
+      // Function to highlight the matching text
+      function highlightText(text, searchText) {
+        const index = text.toLowerCase().indexOf(searchText.toLowerCase());
+        if (index === -1) return text;
+
+        return (
+          text.substring(0, index) +
+          "<strong>" +
+          text.substring(index, index + searchText.length) +
+          "</strong>" +
+          text.substring(index + searchText.length)
+        );
+      }
+
+      // Funktion zum Abrufen von Adressdetails basierend auf der ID
+      function fetchAddressDetails(addressId, language) {
+        const baseUrl = `https://api.addressy.com/LocationServices/Geocoding/GlobalTypeAhead/v1.00/json4.ws?Key=DM83-XX93-WG87-YY43&addressId=${addressId}`;
+
+        const url = `${baseUrl}`;
+
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            const item = data.Items[0];
+
+            // No delay, immediately assign fetched details
+            document.getElementById("City").value = item.Locality || "";
+            document.getElementById("PostalCode").value = item.Postcode || "";
+            document.getElementById("Line1").focus();
+          })
+          .catch((error) =>
+            console.error("Error fetching address details:", error)
+          );
+      }
+
+      // Fetch street and house number suggestions based on input or after PostalCode selection
+      function fetchAddressesForLine1(
+        searchText,
+        postalCode,
+        city,
+        fromPostalCodeClick = false
+      ) {
+        const countryCode = document.getElementById("CountryName").value;
+        const combinedSearchText = `${searchText} ${postalCode}`;
+        const { languageCode, filterParam } = getLanguageParams(savedLanguage);
+
+        const url = `https://api.addressy.com/Capture/Interactive/Find/v1.10/json3.ws?Key=DM83-XX93-WG87-YY43&Text=${encodeURIComponent(
+          combinedSearchText
+        )}&Language=${languageCode}&Countries=${countryCode}&Filters=Postcode:${postalCode}&Filters=${filterParam}`;
+
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            if (
+              fromPostalCodeClick &&
+              data.Items.length === 1 &&
+              data.Items[0].Type === "Container"
+            ) {
+              // Wenn der Aufruf von einem Postleitzahl-Klick stammt und nur ein Container vorhanden ist, öffnen wir ihn automatisch
+              updateAddressListForContainer(data.Items[0].Id);
+            } else {
+              // Zeige die Ergebnisse an, wenn es sich nicht um einen Container handelt
+              updateAddressListForLine1(data.Items, combinedSearchText);
+            }
+          })
+          .catch((error) => console.error("Error fetching addresses:", error));
+      }
+
+      // Function to update the address list for Line1 field
+      function updateAddressListForLine1(items, searchText) {
+        const list = document.getElementById("Line1Suggestions");
+        list.innerHTML = "";
+
+        // Get the current language selection from savedLanguage
+        const isNonEnglish = savedLanguage === "JPN" || savedLanguage === "KOR";
+
+        items.forEach((item) => {
+          // Use Description if non-English language, otherwise use Text
+          let itemText = isNonEnglish ? item.Description : item.Text;
+
+          const listItem = document.createElement("li");
+          listItem.innerHTML = highlightText(itemText, searchText);
+
+          // Container handling
+          if (item.Type === "Container") {
+            const arrowSpan = document.createElement("span");
+            arrowSpan.textContent = " ▶";
+            arrowSpan.style.float = "right";
+            listItem.appendChild(arrowSpan);
+
+            listItem.addEventListener("click", function () {
+              document.getElementById("Line1").value = item.Text;
+              updateAddressListForContainer(item.Id); // Lade die Container-Inhalte nur bei Klick
+            });
+          } else if (item.Type === "Address") {
+            // Adressen werden direkt weiterverarbeitet, wenn der Benutzer klickt
+            listItem.addEventListener("click", function () {
+              document.getElementById("Line1").value = item.Text;
+              retrieveAddressDetails(item.Id);
+              list.style.display = "none";
+            });
+          }
+
+          list.appendChild(listItem);
+        });
+
+        list.style.display = list.childElementCount > 0 ? "block" : "none";
+      }
+
+      // Update the suggestions list based on container
+      function updateAddressListForContainer(containerId) {
+        const url = `https://api.addressy.com/Capture/Interactive/Find/v1.10/json3.ws?Key=DM83-XX93-WG87-YY43&Container=${containerId}`;
+
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            const list = document.getElementById("Line1Suggestions");
+            list.innerHTML = "";
+            const searchText = document.getElementById("Line1").value;
+
+            // Check if non-English language is selected
+            const isNonEnglish =
+              savedLanguage === "JPN" || savedLanguage === "KOR";
+
+            data.Items.forEach((item) => {
+              // Use Description if non-English language, otherwise use Text
+              const itemText = isNonEnglish ? item.Description : item.Text;
+
+              const listItem = document.createElement("li");
+              listItem.innerHTML = highlightText(itemText, searchText);
+              listItem.addEventListener("click", function () {
+                document.getElementById("Line1").value = itemText; // Set Line1 with text or description based on language
+
+                if (item.Type === "Address") {
+                  retrieveAddressDetails(item.Id); // Call Retrieve for Address
+                  list.style.display = "none";
+                } else if (item.Type === "Container") {
+                  updateAddressListForContainer(item.Id); // Handle nested containers
+                }
+              });
+              list.appendChild(listItem);
+            });
+            list.style.display = list.childElementCount > 0 ? "block" : "none";
+          })
+          .catch((error) => console.error("Error fetching addresses:", error));
+      }
+
+      // Updated function to retrieve address details and handle multiple items
+      function retrieveAddressDetails(id) {
+        const url = `https://api.addressy.com/Capture/Interactive/Retrieve/v1.00/json3.ws?Key=DM83-XX93-WG87-YY43&Id=${id}&Field1Format={Latitude}&Field2Format={Longitude}`;
+
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            const items = data.Items;
+
+            // Fill the table with the details of all retrieved items
+            fillDetailsTable(items);
+
+            // Update the label with the first item's information (as an example)
+            if (items.length > 0) {
+              const firstItem = items[0];
+              document.getElementById(
+                "Label"
+              ).textContent = `${firstItem.Label}\n\nLatitude: ${firstItem.Field1}\nLongitude: ${firstItem.Field2}`;
+
+              // Fill the form fields with the first item's values
+              document.getElementById("Line1").value = firstItem.Line1 || "";
+              document.getElementById("City").value = firstItem.City || "";
+              document.getElementById("PostalCode").value =
+                firstItem.PostalCode || "";
+              document.getElementById("Province").value =
+                firstItem.ProvinceName || "";
+            }
+          })
+          .catch((error) =>
+            console.error("Error retrieving address details:", error)
+          );
+      }
+
+      // Function to fill the details table with address information for multiple items
+      function fillDetailsTable(items) {
+        const tableBody = document.getElementById("detailsTableBody");
+        const tableHead = document.querySelector("#detailsTable thead"); // Select the table head
+        tableBody.innerHTML = ""; // Clear existing rows
+        tableHead.innerHTML = ""; // Clear existing headers
+
+        if (items.length === 0) return;
+
+        // Create header row with "Address detail" in the first cell
+        const headerRow = tableHead.insertRow();
+        const headerCell = document.createElement("th");
+        headerCell.textContent = "Address detail";
+        headerRow.appendChild(headerCell);
+
+        // Create additional header cells for each item, labelled "Value 1", "Value 2", etc.
+        items.forEach((item, index) => {
+          const valueHeaderCell = document.createElement("th");
+          valueHeaderCell.textContent = `Value ${index + 1}`;
+          valueHeaderCell.style.backgroundColor = "#0f948d"; // Set the background colour to match
+          valueHeaderCell.style.color = "white"; // Text colour white
+          headerRow.appendChild(valueHeaderCell);
+        });
+
+        // Get all unique keys from the first item (assuming all items have the same keys)
+        const keys = Object.keys(items[0]);
+
+        // Create a table row for each key (address detail)
+        keys.forEach((key) => {
+          const row = tableBody.insertRow();
+
+          // Create a cell for the address detail (only once)
+          const detailCell = row.insertCell(0);
+          detailCell.textContent = key;
+
+          // Loop through each item and add a new column for each item value
+          items.forEach((item, index) => {
+            const valueCell = row.insertCell(index + 1); // Start adding from the second column
+
+            // If the key is 'Label', replace \n with <br> to add line breaks
+            if (key === "Label") {
+              valueCell.innerHTML = item[key].replace(/\n/g, "<br>"); // Handle label with line breaks
+            } else {
+              valueCell.textContent = item[key] || ""; // Handle empty values
+            }
+          });
+        });
+      }
+
+      // Toggle the display of the details table
+      function toggleDetails() {
+        const detailsTable = document.getElementById("detailsTable");
+        detailsTable.style.display =
+          detailsTable.style.display === "none" ? "table" : "none";
+      }
+
+      // Add event listener to the toggleDetails button
+      document
+        .getElementById("toggleDetails")
+        .addEventListener("click", function () {
+          toggleDetails();
+          this.textContent = this.textContent.includes("▼ Details")
+            ? "▲ Details"
+            : "▼ Details";
+        });
+
+      // Add event listener to the nextAddress button
+      document
+        .getElementById("nextAddress")
+        .addEventListener("click", function () {
+          document.getElementById("PostalCode").value = "";
+          document.getElementById("City").value = "";
+          document.getElementById("Line1").value = "";
+          document.getElementById("Province").value = "";
+          document.getElementById("Label").textContent = "Address details";
+          document.getElementById("detailsTableBody").innerHTML = "";
+          document.getElementById("PostalCode").focus();
+        });
+
+      // Add event listener to the PostalCode input field
+      document
+        .getElementById("PostalCode")
+        .addEventListener("input", function () {
+          const postalCode = this.value;
+          if (postalCode.length >= 1) {
+            fetchPostalCodeSuggestions(postalCode);
+          } else {
+            document.getElementById("PostalCodeSuggestions").style.display =
+              "none";
+          }
+        });
+
+      // Add event listener to the Line1 input field
+      document.getElementById("Line1").addEventListener("input", function () {
+        const text = this.value;
+        const postalCode = document.getElementById("PostalCode").value;
+        const city = document.getElementById("City").value;
+        if (text.length >= 1) {
+          fetchAddressesForLine1(text, postalCode, city);
+        }
+      });
+
+      // Add event listener for focus event
+      document.getElementById("Line1").addEventListener("focus", function () {
+        const text = this.value;
+        const postalCode = document.getElementById("PostalCode").value;
+        const city = document.getElementById("City").value;
+
+        // Send request when Line1 gets focus, using postal code and city for context
+        if (postalCode && city) {
+          fetchAddressesForLine1(text, postalCode, city);
+        }
+      });
+    </script>
+  </body>
+</html>
